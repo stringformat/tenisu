@@ -17,6 +17,7 @@ builder.BuildInfrastructure();
 builder.Services.AddHttpLogging();
 builder.Services.AddOpenApi();
 builder.Services.AddValidation();
+builder.Services.AddHealthChecks();
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -33,6 +34,8 @@ app.UseHttpsRedirection();
 
 app.MapOpenApi();
 app.MapScalarApiReference();
+
+app.MapHealthChecks("/health");
 
 var ranking = app.MapGroup("/api/ranking");
 
