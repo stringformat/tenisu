@@ -1,0 +1,6 @@
+@Tenisu.Api_HostAddress = http://localhost:5135
+
+GET {{Tenisu.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
