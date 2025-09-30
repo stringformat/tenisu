@@ -67,44 +67,55 @@ public class RankingDao(TenisuReadContext context) : DaoBase(context), IRankingD
         return new ListRankedPlayerReadModel(players);
     }
     
+    // A tester avec un TestServer et un DbContext InMemory OU Tests d'intégrations
     public async Task<RetrieveStatisticsReadModel> RetrieveStatisticsAsync(CancellationToken cancellationToken)
     {
         var ranksData = await context.Ranks
             .Select(r => new
             {
-                CountryValue = r.Player.Country.Value, r.LastScores
+                Country = r.Player.Country.Value, 
+                r.LastScores
             })
             .ToListAsync(cancellationToken);
         
         var countryWithHighestRatio = ranksData
             .Where(r => r.LastScores.Count != 0)
-            .GroupBy(r => r.CountryValue)
+            .GroupBy(r => r.Country)
             .Select(g => new
             {
                 Country = g.Key,
-                WinRatio = g.Average(r => (double)r.LastScores.Count(score => score == 1) / r.LastScores.Count)
+                WinRatio = g.Average(r => r.LastScores.Count(score => score == 1) / r.LastScores.Count)
             })
             .OrderByDescending(x => x.WinRatio)
-            .First();
+            .First().Country;
 
         var averageBmi = await context.Players
-            .AverageAsync(p => p.Weight / Math.Pow(p.Height / 100.0, 2), cancellationToken);
+            .AverageAsync(p => (p.Weight / 1000.0) / Math.Pow(p.Height / 100.0, 2), cancellationToken);
     
         var playerHeights = await context.Players
             .OrderBy(p => p.Height)
             .Select(p => p.Height)
             .ToListAsync(cancellationToken);
 
-        var medianHeight = playerHeights.Count == 0 ? 0 : 
-            playerHeights.Count % 2 == 0 
-                ? (playerHeights[playerHeights.Count / 2 - 1] + playerHeights[playerHeights.Count / 2]) / 2
-                : playerHeights[playerHeights.Count / 2];
-
         return new RetrieveStatisticsReadModel
         {
-            CountryHighestRation = countryWithHighestRatio.Country,
+            CountryHighestRation = countryWithHighestRatio,
             AverageBmi = Math.Round(averageBmi),
-            MedianPlayerHeight = medianHeight
+            MedianPlayerHeight = ComputeMedian(playerHeights)
         };
+    }
+
+    private static int ComputeMedian(List<int> values)
+    {
+        var length = values.Count;
+        
+        if (length == 0)
+            return 0;
+
+        // impair
+        if (length % 2 != 0)
+            return values[length / 2];
+        
+        return (values[length / 2 - 1] + values[length / 2]) / 2;
     }
 }
