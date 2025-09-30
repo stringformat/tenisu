@@ -56,4 +56,34 @@ public class Player : Entity<PlayerId>
 
         return new Player(country, firstname, lastname, gender, height, weight, age, picture);
     }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj is null || GetType() != obj.GetType()) return false;
+
+        var other = (Player)obj;
+
+        return string.Equals(Country.Value, other.Country.Value, StringComparison.InvariantCultureIgnoreCase)
+               && string.Equals(FirstName, other.FirstName, StringComparison.InvariantCultureIgnoreCase)
+               && string.Equals(LastName, other.LastName, StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(Country.Value, StringComparer.InvariantCultureIgnoreCase);
+        hashCode.Add(FirstName, StringComparer.InvariantCultureIgnoreCase);
+        hashCode.Add(LastName, StringComparer.InvariantCultureIgnoreCase);
+        return hashCode.ToHashCode();
+    }
+
+    public static bool operator ==(Player? left, Player? right)
+    {
+        if (left is null && right is null) return true;
+        if (left is null || right is null) return false;
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Player? left, Player? right) => !(left == right);
 }
