@@ -9,6 +9,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="Tenusi.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\Tenisu.Application\Tenisu.Application.csproj" />
       <ProjectReference Include="..\Tenisu.Infrastructure\Tenisu.Infrastructure.csproj" />
     </ItemGroup>

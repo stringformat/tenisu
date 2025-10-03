@@ -37,6 +37,10 @@ app.MapScalarApiReference();
 
 app.MapHealthChecks("/health");
 
+
+app.MapGet("/test", () =>  "Coucou").WithName("Mon url de test").WithDescription("Ceci est un test");
+
+
 var ranking = app.MapGroup("/api/ranking");
 
 ranking.MapPost("/players", async (RankPlayerPayload payload, RankPlayerUseCase useCase, CancellationToken cancellationToken) =>
